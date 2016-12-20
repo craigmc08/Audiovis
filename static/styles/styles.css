@@ -1,0 +1,128 @@
+html {
+    font-family: 'Roboto';
+    text-shadow: 0 5px 4px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+}
+
+#renderer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: black;
+    background: linear-gradient(to right, rgb(17, 67, 56), hsl(180, 60%, 5%));
+    z-index: -100;
+}
+
+#ctrls-container {
+    position: fixed;
+    font-size: 72px;
+}
+
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }
+.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
+.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+.material-icons.md-light { color: rgba(255, 255, 255, 1); }
+.material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
+
+#controls {
+    background-color: rgba(0, 0, 0, 0);
+    height: 46px;
+    padding-left: 50px;
+    padding-right: 60px;
+    padding-top: 10px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+#controls-container {
+    position: relative;
+}
+.control {
+    float: left;
+    cursor: pointer;
+    -webkit-user-selct: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.control.play-pause, .control.volume {
+    width: 36px;
+    height: 36px;
+    position: relative;
+}
+.control.play, .control.pause, .control.volume .mute, .control.volume .low, .control.volume .high {
+    position: absolute;
+    left: 0;
+}
+.volume-slider {
+    height: 5px;
+    width: 75px;
+    margin-top: calc((36px - 5px) / 2);
+    background-color: rgba(255, 255, 255, 0.54);
+    cursor: default;
+    position: relative;
+}
+.volume-slider .volume-active {
+    background-color: rgba(255, 255, 255, 1);
+    height: 5px;
+    left: 0;
+}
+.volume-handle {
+    cursor: pointer;
+    height: 15px;
+    width: 15px;
+    border-radius: 15px;
+    position: absolute;
+    top: -5px;
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.ripple {
+    background-color: rgba(255, 255, 255, 0.54);
+    opacity: 1;
+    position: fixed;
+    border-radius: 100%;
+}
+
+.spacer {
+    flex-grow: 1;
+}
+
+.info {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: calc(50% + 2vh);
+    bottom: 0;
+    color: white;
+    padding-left: 10%;
+    text-transform: uppercase;
+}
+.info .artist {
+    font-size: 9em;
+    line-height: 1em;
+}
+.info .songname, .info .more {
+    font-size: 3em;
+    line-height: 1em;
+}
+.info .text h1, .info .text h2 {
+    padding: 0;
+    margin: 0;
+}
+.info .artwork {
+    width: 16em;
+    height: auto;
+}
+.info .artwork, .info .text {
+    float: left;
+    margin-right: 1em;
+}
+
+.shadowed {
+    box-shadow: 0 5px 4px rgba(0, 0, 0, 0.5);
+}
