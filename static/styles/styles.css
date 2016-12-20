@@ -2,15 +2,45 @@ html {
     font-family: 'Roboto';
     text-shadow: 0 5px 4px rgba(0, 0, 0, 0.5);
     box-sizing: border-box;
+    user-select: none;
 }
 
 #renderer {
     position: fixed;
     top: 0;
     left: 0;
-    background-color: black;
-    background: linear-gradient(to right, rgb(17, 67, 56), hsl(180, 60%, 5%));
+    background-color: rgba(0, 0, 0, 0);
     z-index: -100;
+}
+
+#el-renderer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+#background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -999;
+    /*background: linear-gradient(to right, rgb(17, 67, 56), rgba(0, 0, 0, 0));*/
+    background-color: hsl(180, 80%, 9%);
+}
+#background-under {
+    z-index: -1000;
+    background-color: hsl(180, 60%, 5%);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
 }
 
 #ctrls-container {
@@ -29,17 +59,19 @@ html {
 
 #controls {
     background-color: rgba(0, 0, 0, 0);
-    height: 46px;
-    padding-left: 50px;
-    padding-right: 60px;
-    padding-top: 10px;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
+    height: 46px;
 }
 #controls-container {
     position: relative;
+}
+#control-container {
+    padding-left: 50px;
+    padding-right: 60px;
+    padding-top: 10px;
 }
 .control {
     float: left;
@@ -62,7 +94,7 @@ html {
     height: 5px;
     width: 75px;
     margin-top: calc((36px - 5px) / 2);
-    background-color: rgba(255, 255, 255, 0.54);
+    background-color: rgba(255, 255, 255, 0.5);
     cursor: default;
     position: relative;
 }
@@ -125,4 +157,44 @@ html {
 
 .shadowed {
     box-shadow: 0 5px 4px rgba(0, 0, 0, 0.5);
+}
+
+.bar {
+    background-color: rgba(255, 255, 255, 1);
+    position: fixed;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+}
+
+.scrubber {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+.scrubber-handle {
+    position: absolute;
+    left: -7.5px;
+    top: -5px;
+    height: 15px;
+    width: 15px;
+    border-radius: 15px;
+    background-color: rgba(255, 255, 255, 1);
+}
+.scrubber-active {
+    background-color: rgba(255, 0, 0, 1);
+    height: 5px;
+}
+.right-holder {
+    position: absolute;
+    right: 60px;
+}
+.currentTime {
+    margin-left: 1em;
+}
+.currentTime, .duration {
+    color: rgba(255, 255, 255, 1);
+    font-size: 16px;
+    line-height: 35px;
 }

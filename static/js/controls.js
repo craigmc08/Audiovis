@@ -11,9 +11,15 @@ var $volume_mute;
 var $volume_low;
 var $volume_high;
 
+var volume_slider;
 var $volume_slider;
 var $volume_handle;
 var $volume_active;
+
+var scrubber;
+var $scrubber;
+var $scrubber_handle;
+var $scrubber_active;
 
 $(document).ready(doc_ready_controls());
 
@@ -42,11 +48,17 @@ function doc_ready_controls() {
     $volume_handle = $('#controls .volume-slider .volume-handle');
     $volume_active = $('#controls .volume-slider .volume-active');
     
+    $scrubber = $('.scrubber');
+    $scrubber_handle = $('.scrubber-handle');
+    $scrubber_active = $('.scrubber-active');
+    
     $play_pause.click(function () {
         if (!playing) {
             audio.play();
+            if (controlsHidden) { hide_controls() };
         } else {
             audio.pause();
+            if (controlsHidden) { show_controls() };
         }
     });
     $stop.click(function () {
@@ -65,18 +77,11 @@ function doc_ready_controls() {
         }
     });
     
-    $volume_slider.mousedown(function (event) {
-        volume_slider_active = true;
-        calc_volume_slider({x: event.pageX, y: event.pageY});
-    });
-    $(document).mouseup(function () {
-        volume_slider_active = false;
-    });
-    $(document).mousemove(function (event) {
-        if (volume_slider_active) {
-            calc_volume_slider({x: event.pageX, y: event.pageY});
-        }
-    });
+    // Setup volume slider
+    volume_slider = new Slider($volume_slider, $volume_handle, $volume_active, set_volume, 0, 1);
+    
+    // Setup time slider
+    scrubber = new Slider($scrubber, $scrubber_handle, $scrubber_active, scrubber_update, 0, 1);
     
     resetTimer();
     show_controls();
@@ -90,13 +95,13 @@ function doc_ready_controls() {
             $volume.click();
         } else if (event.which == 106) {
             // Back 10 seconds
-            change_time(function (time) {
-                return time - 10;
+            change_time(function (audio) {
+                return audio.currentTime - 10;
             });
         } else if (event.which == 108) {
             // Forward 10 seconds
-            change_time(function (time) {
-                return time + 10;
+            change_time(function (audio) {
+                return audio.currentTime + 10;
             });
         } else if (event.which == 104) {
             controlsHidden = !controlsHidden;
@@ -138,26 +143,21 @@ function update_volume(hideall) {
         $volume_high.show();
     }
     
-    update_volume_slider();
+    volume_slider.set_slider(audio.volume, volume_slider);
 }
-function update_volume_slider() {
-    var handle_pos = $volume_slider.width() * audio.volume;
-    $volume_handle.css('left', handle_pos - $volume_handle.width() / 2);
-    $volume_active.css('width', handle_pos);
-}
-function calc_volume_slider(mousePos) {
-    var volume_slider_offset = $volume_slider.offset();
-    mousePos = {x: (mousePos.x - volume_slider_offset.left), y: mousePos.y};
-    var new_volume = mousePos.x / $volume_slider.width();
-    new_volume = new_volume > 1 ? 1 : new_volume;
-    new_volume = new_volume < 0 ? 0 : new_volume;
-    audio.volume = new_volume;
+function set_volume(value) {
+    audio.volume = value;
 }
 
+function scrubber_update(value) {
+    change_time(function scrubber_update_time_change(audio) {
+        return audio.duration * value;
+    });
+}
 // Can pass time or a function (inputs current time)
 function change_time(change) {
     if (typeof change == "function") {
-        audio.currentTime = change(audio.currentTime);
+        audio.currentTime = change(audio);
     } else {
         audio.currentTime = change;
     }
@@ -165,7 +165,9 @@ function change_time(change) {
 
 var controlsHidden = false;
 function hide_controls() {
-    $controls.fadeOut(0);
+    if (!audio.paused) {
+        $controls.fadeOut(0);
+    }
 }
 function show_controls() {
     $controls.fadeIn(100);

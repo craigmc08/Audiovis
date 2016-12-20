@@ -6,11 +6,21 @@ var frequencydata;
 var ctx;
 var $ctx;
 
+var $background;
+
+var $currentM;
+var $currentS;
+var $durationM;
+var $durationS;
+
+var $el_r;
+
 // Settings
 var bars = 64;
 var totalWidth = function (screenWidth) { return screenWidth * 0.8; };
 var totalHeight = function (screenHeight) { return screenHeight * 0.4; };
 var widthGapRatio = 0.3;
+var mode = "element";
 
 // Calculate Settings
 function getBars() {
@@ -62,22 +72,51 @@ $(document).ready(function doc_ready() {
     frequencydata = new Uint8Array(analyser.frequencyBinCount);
     analyser.smoothingTimeConstant = 0.5;
     
-    // Setup Canvas
-    ctx = document.getElementById('renderer').getContext('2d');
-    $ctx = $('#renderer');
-    set_canvas_size();
+    $currentM = $('.currentMin');
+    $currentS = $('.currentSecond');
+    $durationM = $('.durMin');
+    $durationS = $('.durSecond');
     
-    $(window).resize(function () {
+    $background = $('#background');
+    
+    // Setup Renderer
+    if (mode == "canvas") {
+        ctx = document.getElementById('renderer').getContext('2d');
+        $ctx = $('#renderer');
         set_canvas_size();
-    });
+
+        $(window).resize(function () {
+            set_canvas_size();
+        });
+        $('#el-renderer').hide();
+    } else if (mode == "element") {
+        // Create elements
+        $el_r = $('#el-renderer');
+        for (var i = 0; i < getBars(); i++) {
+            var bar = "<div class='bar' id='b" + i + "'></div>";
+            $el_r.append(bar);
+        }
+        $('#renderer').hide();
+    }
     
     // Loop
     frame = 0;
     function renderFrame() {
+        var render = mode == "canvas" ? renderFrame : adjustBars;
         requestAnimationFrame(renderFrame);
         if (playing) {
+            var cur = [Math.floor(audio.currentTime / 60), leftPad(Math.floor(audio.currentTime % 60), 2)];
+            var dur = [Math.floor(audio.duration / 60), leftPad(Math.floor(audio.duration % 60), 2)];
+            $currentM.text(cur[0]);
+            $currentS.text(cur[1]);
+            $durationM.text(dur[0]);
+            $durationS.text(dur[1]);
+            scrubber.set_slider(audio.currentTime / audio.duration, scrubber);
+            
             analyser.getByteFrequencyData(frequencydata);
-            renderToRenderer(frame);
+            render(frame);
+            
+            //$background.css('background-color', hsl(180, 80, 5 + (frequencyrange(0, 250) / (255 / 9))));
 
             frame++;
         }
@@ -96,10 +135,21 @@ $(document).ready(function doc_ready() {
     audio.addEventListener('volumechange', function () {
         update_volume();
     });
+    audio.addEventListener('timeupdate', function () {
+    });
     update_volume();
     audio.volume = defaultVolume;
     
 });
+
+function leftPad(number, targetLength) {
+    var output = number + '';
+    while (output.length < targetLength) {
+        output = '0' + output;
+    }
+    return output;
+}
+// http://stackoverflow.com/a/8043254
 
 function renderToRenderer(frame) {
     
@@ -109,51 +159,36 @@ function renderToRenderer(frame) {
     var barWidth = barSize / (1 + getWidthGapRatio());
     var barGap = barWidth * getWidthGapRatio();
     
-    barsHist.push(processFrequencyData(15 / $ctx.height()));
+    barsHist.push(processFrequencyData());
     
     drawBars($ctx.height(), $ctx.width(), 2, barsHist[frame]);
     
     
 }
 
-// For logarithmic approach to frequencies
-var noteStep = 120 / bars;
-var a = 2 ** (1/12);
-// Create a [bars] long array of data from 0-1 from frequencydata
-function processFrequencyData(min) {
-    var barsMap = [];
+function adjustBars(frame) {
+    var $bd = $('body');
+    var barSize = getBarSize($bd.width());
+    var barWidth = getBarWidth($bd.width());
+    var barGap = getBarGap($bd.width());
+    var barHeight = getTotalHeight($bd.height());
     
-    var l = 0;
-    var h = 8;
+    var firstX = ($bd.width() - getTotalWidth($bd.width())) / 2;
     
-    for (var i = 0; i < bars; i++) {
-        
-        barsMap.push(0);
-        
-        l = h;
-        h = l*(a**noteStep);
-        
-        var rangeSize = 1;
-        
-        for (var j = Math.floor(l); j <= Math.floor(h); j++) {
-            barsMap[i] += frequencydata[j];
-            rangeSize++;
-        }
-                
-        barsMap[i] /= rangeSize;
-        barsMap[i] = Math.pow(barsMap[i], 2);
-        barsMap[i] /= 65025;
-        barsMap[i] *= 1;
-        
-        // Edge Fallof
-        //var dist = Math.abs(i - bars / 2);
-        //var mult = 1 - (dist / (bars / 2))**2;
-        //barsMap[i] *= mult;
-        
-        
-        barsMap[i] = barsMap[i] > 1 ? 1 : barsMap[i];
+    barsHist.push(processFrequencyData());
+    
+    // Loop through bars and set heights and widths and positions
+    for (var i = 0; i < getBars(); i++) {
+        var bHeight = barsHist[frame][i] * barHeight;
+        bHeight = bHeight < 2 ? 2 : bHeight;
+        var y = $bd.height() / 2;
+        var x = firstX + i * barSize;
+        $el = $('#b' + i);
+        $el.css('left', x);
+        $el.css('bottom', y);
+        $el.css('height', bHeight);
+        $el.css('width', barWidth);
     }
-    return barsMap;
 }
 
 function drawBars(height, width, minHeight, data) {
@@ -214,9 +249,50 @@ function drawWave(height, width, lineSize, centerX, bottom, data, opacity) {
     ctx.stroke();
 }
 
+// For logarithmic approach to frequencies
+var noteStep = 120 / bars;
+var a = 2 ** (1/12);
+// Create a [bars] long array of data from 0-1 from frequencydata
+function processFrequencyData() {
+    var barsMap = [];
+    
+    var l = 0;
+    var h = 8;
+    
+    for (var i = 0; i < bars; i++) {
+        
+        barsMap.push(0);
+        
+        l = h;
+        h = l*(a**noteStep);
+        
+        barsMap[i] = frequencyrange(l, h);
+        barsMap[i] = Math.pow(barsMap[i], 2);
+        barsMap[i] /= 65025;
+        barsMap[i] *= 1;
+        
+        
+        barsMap[i] = barsMap[i] > 1 ? 1 : barsMap[i];
+    }
+    return barsMap;
+}
+
 // Get average frequency from range l-h from frequencydata
 function frequencyrange(l, h) {
+    var sum = 0;
+    var count = 2; // Start 2 because l and h are outside of loop
     
+    sum += frequencydata[Math.floor(l)] * (l % 1);
+    sum += frequencydata[Math.floor(h + 1)] * (h % 1);
+    
+    for (var i = Math.floor(l + 1); i < Math.floor(h); i++) {
+        sum += frequencydata[i];
+        count++;
+    }
+    
+    sum /= count;
+    
+    return sum;
 }
 
 function rgb(r, g, b) {
@@ -227,6 +303,9 @@ function rgb(r, g, b) {
 }
 function rgba(r, g, b, a) {
     return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+}
+function hsl(h, s, l) {
+    return 'hsl(' + h + ',' + s + '%,' + l + '%)';
 }
 
 function set_canvas_size() {

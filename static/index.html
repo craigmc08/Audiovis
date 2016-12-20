@@ -13,15 +13,23 @@
     <body>
         <audio id="audio" src="/sounds/takpaeki.mp3" loop></audio>
         
+        <div id="background-under"></div>
+        <div id="background"></div>
+        
         <!-- Visualizer -->
         <canvas id="renderer" width="0" height="0"></canvas>
+        
+        <!-- Element based visualier -->
+        <div id="el-renderer">
+            
+        </div>
         
         <!-- Info -->
         <div class="info">
             <img class="artwork shadowed" src="https://i1.sndcdn.com/artworks-000152117021-zu66mf-t500x500.jpg">
             <span class="text">
-                <h1 class="artist">tak</h1>
-                <h2 class="songname">Pae-ki</h2>
+                <h1 class="artist">Tak</h1>
+                <h2 class="songname">Pae-Ki</h2>
                 <h2 class="more">meganeko remix</h2>
             </span>
         </div>
@@ -29,32 +37,44 @@
         <!-- Controls -->
         <div id="controls">
             <div id="controls-container">
-                <span class="left-holder">
-                    <div class="control play-pause">
-                        <span class="play material-icons md-36 md-light">play_arrow</span>
-                        <span class="pause material-icons md-36 md-light">pause</span>
-                    </div>
-                    <div class="control stop">
-                        <span class="material-icons md-36 md-light">stop</span>
+                <span class="scrubber-holder">
+                    <div class="scrubber shadowed">
+                        <div class="scrubber-handle shadowed"></div>
+                        <div class="scrubber-active"></div>
                     </div>
                 </span>
-                <span class="right-holder">
-                    <div class="control volume">
-                        <span class="low material-icons md-36 md-light">volume_down</span>
-                        <span class="high material-icons md-36 md-light">volume_up</span>
-                        <span class="mute material-icons md-36 md-light">volume_off</span>
-                    </div>
-                    <div class="control volume-slider shadowed">
-                        <div class="volume-handle shadowed"></div>
-                        <div class="volume-active"></div>
-                    </div>
-                </span>
+                <div id="control-container">
+                    <span class="left-holder">
+                        <div class="control play-pause">
+                            <span class="play material-icons md-36 md-light">play_arrow</span>
+                            <span class="pause material-icons md-36 md-light">pause</span>
+                        </div>
+                        <div class="control stop">
+                            <span class="material-icons md-36 md-light">stop</span>
+                        </div>
+                        <div class="control volume">
+                            <span class="low material-icons md-36 md-light">volume_down</span>
+                            <span class="high material-icons md-36 md-light">volume_up</span>
+                            <span class="mute material-icons md-36 md-light">volume_off</span>
+                        </div>
+                        <div class="control volume-slider shadowed">
+                            <div class="volume-handle shadowed"></div>
+                            <div class="volume-active"></div>
+                        </div>
+                        <span class="currentTime"><span class="currentMin">0</span>:<span class="currentSecond">00</span> / </span>
+                        <span class="duration"><span class="durMin">0</span>:<span class="durSecond">00</span></span>
+                    </span>
+                    <span class="right-holder">
+                        
+                    </span>
+                </div>
             </div>
         </div>
         
         <!-- Scripts -->
         <script src="https://code.getmdl.io/1.2.1/material.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+        <script src="/js/slider.js"></script>
         <script src="/js/visualizer.js"></script>
         <script src="/js/controls.js"></script>
         <script src="/js/ripple.js"></script>
