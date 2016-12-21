@@ -29,7 +29,13 @@ var oldvolume;
 
 var volume_slider_active = false;
 
+function gen_theme_style(colorHS) {
+    return '.color--theme { background-color: ' + hsl(colorHS[0], colorHS[1], 50) + '; } .color--theme-dark { background-color: ' + hsl(colorHS[0], colorHS[1], 10) + '; }';
+}
+
 function doc_ready_controls() {
+    
+    
     
     $controls = $('#controls');
     
@@ -78,10 +84,10 @@ function doc_ready_controls() {
     });
     
     // Setup volume slider
-    volume_slider = new Slider($volume_slider, $volume_handle, $volume_active, set_volume, 0, 1);
+    volume_slider = new Slider($volume_slider, $volume_handle, $volume_active, set_volume, function () {}, 0, 1);
     
     // Setup time slider
-    scrubber = new Slider($scrubber, $scrubber_handle, $scrubber_active, scrubber_update, 0, 1);
+    scrubber = new Slider($scrubber, $scrubber_handle, $scrubber_active, scrubber_update, scrubber_state, 0, 1);
     
     resetTimer();
     show_controls();
@@ -154,6 +160,14 @@ function scrubber_update(value) {
         return audio.duration * value;
     });
 }
+function scrubber_state(state) {
+    console.log('state update:' + state);
+    if (state) {
+        audio.pause();
+    } else {
+        audio.play();
+    }
+}
 // Can pass time or a function (inputs current time)
 function change_time(change) {
     if (typeof change == "function") {
@@ -165,6 +179,9 @@ function change_time(change) {
 
 var controlsHidden = false;
 function hide_controls() {
+    if (typeof audio == 'undefined') {
+        return;
+    }
     if (!audio.paused) {
         $controls.fadeOut(0);
     }

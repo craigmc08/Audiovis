@@ -19,7 +19,7 @@ var $el_r;
 var bars = 64;
 var totalWidth = function (screenWidth) { return screenWidth * 0.8; };
 var totalHeight = function (screenHeight) { return screenHeight * 0.4; };
-var widthGapRatio = 0.3;
+var widthGapRatio = 0.4;
 var mode = "element";
 
 // Calculate Settings
@@ -104,14 +104,16 @@ $(document).ready(function doc_ready() {
     function renderFrame() {
         var render = mode == "canvas" ? renderFrame : adjustBars;
         requestAnimationFrame(renderFrame);
+        
+        var cur = [Math.floor(audio.currentTime / 60), leftPad(Math.floor(audio.currentTime % 60), 2)];
+        var dur = [Math.floor(audio.duration / 60), leftPad(Math.floor(audio.duration % 60), 2)];
+        $currentM.text(cur[0]);
+        $currentS.text(cur[1]);
+        $durationM.text(dur[0]);
+        $durationS.text(dur[1]);
+        scrubber.set_slider(audio.currentTime / audio.duration, scrubber);
+        
         if (playing) {
-            var cur = [Math.floor(audio.currentTime / 60), leftPad(Math.floor(audio.currentTime % 60), 2)];
-            var dur = [Math.floor(audio.duration / 60), leftPad(Math.floor(audio.duration % 60), 2)];
-            $currentM.text(cur[0]);
-            $currentS.text(cur[1]);
-            $durationM.text(dur[0]);
-            $durationS.text(dur[1]);
-            scrubber.set_slider(audio.currentTime / audio.duration, scrubber);
             
             analyser.getByteFrequencyData(frequencydata);
             render(frame);

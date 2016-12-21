@@ -6,13 +6,15 @@
 //  handle: thing that moves to where value is
 //  active_bar: shows to left of handle
 //  on_update: called when slider value changes with parameters (value)
+//  on_state_change: called when state of slider changes with parameters (state), the state is if the slider is currently being adjusted
 //  min, max: minimum and maximum value of slider
 class Slider {
-    constructor(bar, handle, active_bar, on_update, min, max) {
+    constructor(bar, handle, active_bar, on_update, on_state_change, min, max) {
         this.bar = bar;
         this.handle = handle;
         this.active_bar = active_bar;
         this.on_update = on_update;
+        this.on_state_change = on_state_change;
         this.range = {min: min, max: max};
         
         this.active = false;
@@ -28,6 +30,13 @@ class Slider {
         $(document).mouseup(function (event) {
             that.mouse_up(that);
         });
+    }
+    
+    set_active(state, that) {
+        if (state !== that.active) {
+            that.on_state_change(state);
+        }
+        that.active = state;
     }
     
     set_slider(value, that) {
@@ -56,7 +65,7 @@ class Slider {
     }
     
     mouse_down(event, that) {
-        that.active = true;
+        that.set_active(true, that);
         that.calc_value(event.pageX, that);
     }
     
@@ -67,6 +76,6 @@ class Slider {
     }
     
     mouse_up(that) {
-        that.active = false;
+        that.set_active(false, that);
     }
 }
